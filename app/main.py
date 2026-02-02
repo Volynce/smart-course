@@ -9,6 +9,9 @@ from app.repositories.articles import list_articles
 from app.repositories.users import create_user
 from app.repositories.users import get_user
 from app.repositories.program import get_user_program
+from app.repositories.minitest import get_article_minitest
+from app.repositories.minitest_submit import submit_minitest
+
 
 app = FastAPI(title="Smart Course API")
 
@@ -18,6 +21,15 @@ class UserCreateIn(BaseModel):
     track_id: str
     department: str | None = None
     position_title: str | None = None
+
+class MiniTestAnswerIn(BaseModel):
+    question_id: str
+    selected_option_id: str
+
+class MiniTestSubmitIn(BaseModel):
+    article_id: str
+    answers: list[MiniTestAnswerIn]
+
 
 @app.get("/health")
 def health():
@@ -62,4 +74,12 @@ async def get_user_by_id(user_id: str):
 async def get_program(user_id: str, stage_id: str | None = None):
     return await get_user_program(user_id=user_id, stage_id=stage_id)
 
+@app.get("/articles/{article_id}/minitest")
+async def article_minitest(article_id: str):
+    return await get_article_minitest(article_id)
+
+@app.post("/users/{user_id}/minitest/submit")
+async def user_minitest_submit(user_id: str, payload: MiniTestSubmitIn):
+    answers = [{"question_id": a.question_id, "selected_option_id": a.selected_option_id} for a in payload.answers]
+    return await submit_minitest(user_id=user_id, article_id=payload.article_id, answers=answers)
 
