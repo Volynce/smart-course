@@ -17,3 +17,11 @@
 ## Журнал изменений
 ### 2026-02-02
 - Созданы базовые файлы проекта (README, .gitignore) и папка app/
+## База данных (PostgreSQL)
+В dev-режиме используем PostgreSQL в Docker.
+
+Запуск:
+docker run --name smart-course-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=smart_course -p 5432:5432 -d postgres:16
+
+Проверка:
+docker exec -it smart-course-postgres psql -U postgres -d smart_course -c "SELECT 1;"
