@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.config import settings
 from app.db import ping_db
 from app.repositories.modules import list_modules
+from app.repositories.tracks import list_tracks
 
 app = FastAPI(title="Smart Course API")
 
@@ -17,3 +18,7 @@ async def db_ping():
 @app.get("/modules")
 async def get_modules(track_id: str | None = None):
     return await list_modules(track_id=track_id)
+
+@app.get("/tracks")
+async def get_tracks():
+    return await list_tracks()
