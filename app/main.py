@@ -8,7 +8,7 @@ from app.repositories.stages import list_stages
 from app.repositories.articles import list_articles
 from app.repositories.users import create_user
 from app.repositories.users import get_user
-
+from app.repositories.program import get_user_program
 
 app = FastAPI(title="Smart Course API")
 
@@ -57,5 +57,9 @@ async def post_user(payload: UserCreateIn):
 @app.get("/users/{user_id}")
 async def get_user_by_id(user_id: str):
     return await get_user(user_id)
+
+@app.get("/users/{user_id}/program")
+async def get_program(user_id: str, stage_id: str | None = None):
+    return await get_user_program(user_id=user_id, stage_id=stage_id)
 
 
