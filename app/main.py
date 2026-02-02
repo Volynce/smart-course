@@ -11,6 +11,7 @@ from app.repositories.users import get_user
 from app.repositories.program import get_user_program
 from app.repositories.minitest import get_article_minitest
 from app.repositories.minitest_submit import submit_minitest
+from app.repositories.admission import stage_admission
 
 
 app = FastAPI(title="Smart Course API")
@@ -82,4 +83,8 @@ async def article_minitest(article_id: str):
 async def user_minitest_submit(user_id: str, payload: MiniTestSubmitIn):
     answers = [{"question_id": a.question_id, "selected_option_id": a.selected_option_id} for a in payload.answers]
     return await submit_minitest(user_id=user_id, article_id=payload.article_id, answers=answers)
+
+@app.get("/users/{user_id}/stage-admission")
+async def get_stage_admission(user_id: str):
+    return await stage_admission(user_id)
 
