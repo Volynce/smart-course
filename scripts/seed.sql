@@ -19,8 +19,8 @@ CROSS JOIN (VALUES
   ('Frontend'),
   ('Backend'),
   ('Базы данных'),
-  ('Инфраструктура'),
-  ('HostCMS') 
+  ('Внутренние стандарты'),
+  ('HostCMS')
 ) AS m(name)
 WHERE t.name = 'Разработчик'
 ON CONFLICT (track_id, name) DO NOTHING;
