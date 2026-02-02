@@ -25,3 +25,26 @@ docker run --name smart-course-postgres -e POSTGRES_USER=postgres -e POSTGRES_PA
 
 Проверка:
 docker exec -it smart-course-postgres psql -U postgres -d smart_course -c "SELECT 1;"
+
+## Быстрый старт (PostgreSQL + миграции + seed)
+
+### 1) Запуск PostgreSQL в Docker
+Контейнер: `smart-course-postgres`  
+База: `smart_course`
+
+```bash
+docker run --name smart-course-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=smart_course -p 5432:5432 -d postgres:16
+Проверка:
+
+docker exec -it smart-course-postgres psql -U postgres -d smart_course -c "SELECT 1;"
+2) Применить миграции
+alembic upgrade head
+3) Заполнить минимальные данные (seed)
+docker exec -i smart-course-postgres psql -U postgres -d smart_course < scripts/seed.sql
+4) Запуск API
+uvicorn app.main:app --reload
+Проверки:
+
+http://127.0.0.1:8000/health
+
+http://127.0.0.1:8000/db-ping
