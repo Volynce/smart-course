@@ -2,17 +2,19 @@ from fastapi import FastAPI
 from app.config import settings
 from app.db import ping_db
 from pydantic import BaseModel
+from typing import List
 from app.repositories.modules import list_modules
 from app.repositories.tracks import list_tracks
 from app.repositories.stages import list_stages
 from app.repositories.articles import list_articles
 from app.repositories.users import create_user
 from app.repositories.users import get_user
-from app.repositories.program import get_user_program
 from app.repositories.minitest import get_article_minitest
 from app.repositories.minitest_submit import submit_minitest
 from app.repositories.admission import stage_admission
-
+from app.repositories.entry_diagnostic import entry_start
+from app.repositories.entry_submit import entry_submit
+from app.repositories.program import generate_program_for_active_stage, get_program
 
 app = FastAPI(title="Smart Course API")
 
@@ -31,6 +33,13 @@ class MiniTestSubmitIn(BaseModel):
     article_id: str
     answers: list[MiniTestAnswerIn]
 
+class EntryAnswer(BaseModel):
+    question_id: str
+    selected_option_id: str
+
+class EntrySubmitIn(BaseModel):
+    diagnostika_id: str
+    answers: List[EntryAnswer]
 
 @app.get("/health")
 def health():
@@ -71,10 +80,6 @@ async def post_user(payload: UserCreateIn):
 async def get_user_by_id(user_id: str):
     return await get_user(user_id)
 
-@app.get("/users/{user_id}/program")
-async def get_program(user_id: str, stage_id: str | None = None):
-    return await get_user_program(user_id=user_id, stage_id=stage_id)
-
 @app.get("/articles/{article_id}/minitest")
 async def article_minitest(article_id: str):
     return await get_article_minitest(article_id)
@@ -87,4 +92,24 @@ async def user_minitest_submit(user_id: str, payload: MiniTestSubmitIn):
 @app.get("/users/{user_id}/stage-admission")
 async def get_stage_admission(user_id: str):
     return await stage_admission(user_id)
+
+@app.post("/diagnostics/entry/start")
+async def diagnostics_entry_start(user_id: str):
+    return await entry_start(user_id=user_id)
+
+@app.post("/diagnostics/entry/submit")
+async def diagnostics_entry_submit(payload: EntrySubmitIn):
+    return await entry_submit(
+        diagnostika_id=payload.diagnostika_id,
+        answers=[a.model_dump() for a in payload.answers],
+    )
+
+@app.post("/users/{user_id}/program/generate")
+async def program_generate(user_id: str):
+    return await generate_program_for_active_stage(user_id)
+
+@app.get("/users/{user_id}/program")
+async def program_get(user_id: str, stage_id: str | None = None):
+    return await get_program(user_id, stage_id=stage_id)
+
 
